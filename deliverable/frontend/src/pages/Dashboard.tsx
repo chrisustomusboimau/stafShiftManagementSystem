@@ -5,6 +5,7 @@ import Filters, { Location } from "../components/Filters";
 import ScheduleMatrix, { MatrixData } from "../components/ScheduleMatrix";
 import AssignmentModal, { EditingCell } from "../components/AssignmentModal";
 import StaffModal from "../components/StaffModal";
+import LocationModal from "../components/LocationModal";
 
 export default function Dashboard() {
   const { user, logout, isAdmin } = useAuth();
@@ -20,6 +21,7 @@ export default function Dashboard() {
   const [editing, setEditing] = useState<EditingCell | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [staffModalOpen, setStaffModalOpen] = useState(false);
+  const [locationModalOpen, setLocationModalOpen] = useState(false);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -59,12 +61,20 @@ export default function Dashboard() {
           </div>
           <div className="flex items-center gap-2">
             {isAdmin && (
-              <button
-                onClick={() => setStaffModalOpen(true)}
-                className="text-sm px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
-              >
-                + Add Staff
-              </button>
+              <>
+                <button
+                  onClick={() => setStaffModalOpen(true)}
+                  className="text-sm px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+                >
+                  + Add Staff
+                </button>
+                <button
+                  onClick={() => setLocationModalOpen(true)}
+                  className="text-sm px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700"
+                >
+                  + Add Lantai
+                </button>
+              </>
             )}
             <button
               onClick={logout}
@@ -119,6 +129,11 @@ export default function Dashboard() {
       <StaffModal
         open={staffModalOpen}
         onClose={() => setStaffModalOpen(false)}
+        onSaved={refresh}
+      />
+      <LocationModal
+        open={locationModalOpen}
+        onClose={() => setLocationModalOpen(false)}
         onSaved={refresh}
       />
     </div>
