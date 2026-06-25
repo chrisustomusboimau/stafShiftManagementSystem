@@ -4,6 +4,7 @@ import { useAuth } from "../auth/AuthContext";
 import Filters, { Location } from "../components/Filters";
 import ScheduleMatrix, { MatrixData } from "../components/ScheduleMatrix";
 import AssignmentModal, { EditingCell } from "../components/AssignmentModal";
+import StaffModal from "../components/StaffModal";
 
 export default function Dashboard() {
   const { user, logout, isAdmin } = useAuth();
@@ -18,6 +19,7 @@ export default function Dashboard() {
 
   const [editing, setEditing] = useState<EditingCell | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [staffModalOpen, setStaffModalOpen] = useState(false);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -55,12 +57,22 @@ export default function Dashboard() {
               Signed in as <span className="font-medium">{user?.username}</span> ({user?.role})
             </p>
           </div>
-          <button
-            onClick={logout}
-            className="text-sm px-3 py-1.5 rounded-lg border hover:bg-slate-50"
-          >
-            Sign out
-          </button>
+          <div className="flex items-center gap-2">
+            {isAdmin && (
+              <button
+                onClick={() => setStaffModalOpen(true)}
+                className="text-sm px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+              >
+                + Add Staff
+              </button>
+            )}
+            <button
+              onClick={logout}
+              className="text-sm px-3 py-1.5 rounded-lg border hover:bg-slate-50"
+            >
+              Sign out
+            </button>
+          </div>
         </div>
       </header>
       <main className="max-w-[1400px] mx-auto px-6 py-6 space-y-4">
@@ -103,6 +115,11 @@ export default function Dashboard() {
         onSaved={refresh}
         cell={editing}
         locations={locations}
+      />
+      <StaffModal
+        open={staffModalOpen}
+        onClose={() => setStaffModalOpen(false)}
+        onSaved={refresh}
       />
     </div>
   );
