@@ -5,6 +5,7 @@ import Filters, { Location } from "../components/Filters";
 import ScheduleMatrix, { MatrixData } from "../components/ScheduleMatrix";
 import AssignmentModal, { EditingCell } from "../components/AssignmentModal";
 import StaffModal from "../components/StaffModal";
+import LocationModal from "../components/LocationModal";
 
 export default function Dashboard() {
   const { user, logout, isAdmin } = useAuth();
