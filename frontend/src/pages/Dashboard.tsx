@@ -74,26 +74,26 @@ export default function Dashboard() {
     <div className="min-h-screen" style={{ backgroundColor: "#f7f5e1" }}>
       {/* Header navigasi dengan latar belakang primer gelap dan aksen emas */}
       <header className="border-b" style={{ backgroundColor: "#03323f", borderColor: "rgba(253, 175, 23, 0.2)" }}>
-        <div className="max-w-[1400px] mx-auto px-6 py-3 flex items-center justify-between">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
           <div>
-            <h1 className="text-lg font-bold" style={{ color: "#fdaf17" }}>Event Staff Tracker</h1>
-            <p className="text-xs" style={{ color: "#ebeae1" }}>
+            <h1 className="text-base sm:text-lg font-bold" style={{ color: "#fdaf17" }}>Event Staff Tracker</h1>
+            <p className="text-[10px] sm:text-xs" style={{ color: "#ebeae1" }}>
               Signed in as <span className="font-semibold" style={{ color: "#fdaf17" }}>{user?.username}</span> ({user?.role})
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             {isAdmin && (
               <Link
                 to="/manage"
-                className="text-sm px-3 py-1.5 rounded-lg font-semibold transition-colors hover:opacity-90"
+                className="text-xs sm:text-sm px-2.5 sm:px-3 py-1.5 rounded-lg font-semibold transition-colors hover:opacity-90"
                 style={{ backgroundColor: "#fdaf17", color: "#03323f" }}
               >
-                Manage Staff & Rooms
+                Manage
               </Link>
             )}
             <button
               onClick={logout}
-              className="text-sm px-3 py-1.5 rounded-lg border font-medium transition-colors hover:bg-white/5"
+              className="text-xs sm:text-sm px-2.5 sm:px-3 py-1.5 rounded-lg border font-medium transition-colors hover:bg-white/5"
               style={{ color: "#f7f5e1", borderColor: "rgba(247, 245, 225, 0.3)" }}
             >
               Sign out
@@ -102,8 +102,11 @@ export default function Dashboard() {
         </div>
       </header>
       
-      <main className="max-w-[1400px] mx-auto px-6 py-6 space-y-4">
-        {/* FIX UTAMA: Lempar state kontrol kalender ke dalam komponen Filters */}
+      {/* FIX MOBILE SCROLL CONTAINER: 
+        Menambahkan 'w-full overflow-x-auto' pada pembungkus luar agar tabel jam di sebelah kanan
+        dapat digeser (scroll) dengan lancar di layar HP tanpa merusak layout elemen dasbor lainnya.
+      */}
+      <main className="max-w-[1400px] mx-auto px-4 sm:px-6 py-6 space-y-4 w-full overflow-hidden">
         <Filters
           search={search}
           onSearch={setSearch}
@@ -114,28 +117,30 @@ export default function Dashboard() {
           onDateChange={setSelectedDate}
         />
         {err && (
-          <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+          <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
             {err}
           </div>
         )}
         {loading && !matrix && (
-          <div className="text-sm" style={{ color: "#03323f" }}>Loading…</div>
+          <div className="text-sm font-semibold" style={{ color: "#03323f" }}>Loading…</div>
         )}
         
         {matrix && (
-          <ScheduleMatrix
-            data={matrix}
-            search={search}
-            highlightSlot={currentTimeStr} 
-            locationFilter={locationFilter}
-            isAdmin={isAdmin}
-            currentUser={user} 
-            onCellClick={(c) => { 
-              // FIX UTAMA: Sisipkan data tanggal aktif saat sel grid diklik ke modal form
-              setEditing({ ...c, date: selectedDate }); 
-              setModalOpen(true); 
-            }}
-          />
+          <div className="w-full overflow-x-auto rounded-xl border bg-white shadow-sm" style={{ borderColor: "#d9d6be" }}>
+            <ScheduleMatrix
+              data={matrix}
+              search={search}
+              highlightSlot={currentTimeStr} 
+              locationFilter={locationFilter}
+              isAdmin={isAdmin}
+              currentUser={user} 
+              onCellClick={(c) => { 
+                // FIX UTAMA: Sisipkan data tanggal aktif saat sel grid diklik ke modal form
+                setEditing({ ...c, date: selectedDate }); 
+                setModalOpen(true); 
+              }}
+            />
+          </div>
         )}
         {!isAdmin && (
           <p className="text-xs font-medium" style={{ color: "#617578" }}>

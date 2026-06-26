@@ -58,7 +58,7 @@ export default function ScheduleMatrix({
       if (activeHeader) {
         const container = containerRef.current;
         const headerOffset = (activeHeader as HTMLElement).offsetLeft;
-        const staffColumnWidth = 260;
+        const staffColumnWidth = 140; // Menyesuaikan lebar kolom nama staf yang diperkecil
 
         container.scrollTo({
           left: headerOffset - staffColumnWidth,
@@ -113,8 +113,9 @@ export default function ScheduleMatrix({
       <table className="min-w-max border-separate border-spacing-0 text-sm">
         <thead>
           <tr>
+            {/* FIX RESPONSIVE HEADER: Membatasi lebar kolom header Staff di layar HP */}
             <th 
-              className="sticky top-0 left-0 z-30 border-b border-r px-4 py-3 text-left min-w-[260px] font-semibold"
+              className="sticky top-0 left-0 z-30 border-b border-r px-3 py-3 text-left w-28 max-w-[120px] sm:w-64 sm:max-w-[260px] truncate font-semibold"
               style={{ 
                 backgroundColor: "#e8e5cd", 
                 color: "#03323f", 
@@ -171,24 +172,25 @@ export default function ScheduleMatrix({
                   color: isMe ? "#f7f5e1" : "#03323f"
                 }}
               >
-                {/* Kolom Nama Staf Sticky */}
+                {/* FIX RESPONSIVE CELL NAMA: Sticky mengunci, ukuran menyusut tajam di HP, dan teks auto-potong (...) */}
                 <td 
-                  className="sticky left-0 z-10 border-b border-r px-4 py-3 min-w-[260px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] transition-colors"
+                  className="sticky left-0 z-10 border-b border-r px-3 py-3 w-28 max-w-[120px] sm:w-64 sm:max-w-[260px] truncate shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] transition-colors"
                   style={{ 
                     backgroundColor: isMe ? "#03323f" : "#f7f5e1",
                     borderColor: "#d9d6be"
                   }}
+                  title={s.name} // Memunculkan tooltip nama lengkap asli jika di-hover lama
                 >
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-baseline justify-between gap-2">
+                  <div className="flex flex-col gap-0.5">
+                    <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-0.5 sm:gap-2">
                       <span 
-                        className="font-bold"
+                        className="font-bold truncate block"
                         style={{ color: isMe ? "#fdaf17" : "#03323f" }}
                       >
                         {s.name}
                         {isMe && (
                           <span 
-                            className="text-[9px] px-1.5 py-0.5 rounded ml-1.5 font-normal tracking-wide uppercase"
+                            className="text-[8px] sm:text-[9px] px-1 py-0.2 rounded ml-1 font-normal tracking-wide uppercase inline-block align-middle"
                             style={{ backgroundColor: "#fdaf17", color: "#03323f" }}
                           >
                             Anda
@@ -197,7 +199,7 @@ export default function ScheduleMatrix({
                       </span>
                       
                       <span 
-                        className="text-[11px] font-normal"
+                        className="text-[10px] font-normal truncate block"
                         style={{ color: isMe ? "#c7c4ae" : "#617578" }}
                       >
                         {s.division && s.division.toLowerCase() !== s.name.toLowerCase() ? s.division : ""}
@@ -205,39 +207,39 @@ export default function ScheduleMatrix({
                     </div>
 
                     {/* STATUS LOKASI STANDBY / FREE / IZIN */}
-                    <div className="mt-0.5">
+                    <div className="mt-1">
                       {currentActiveCell ? (
                         currentActiveCell.is_leave ? (
-                          // Badge khusus jika staf sedang izin/absen di slot aktif saat ini
                           <div 
-                            className="inline-flex items-center gap-1 text-[11px] font-semibold border px-2 py-0.5 rounded-md text-red-700 bg-red-50 border-red-300"
+                            className="inline-flex items-center gap-1 text-[10px] font-semibold border px-1.5 py-0.5 rounded text-red-700 bg-red-50 border-red-200 max-w-full truncate"
                           >
-                            <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                            <span>IZIN / ABSEN</span>
+                            <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
+                            <span className="truncate">IZIN</span>
                           </div>
                         ) : (
                           <div 
-                            className="inline-flex items-center gap-1 text-[11px] font-semibold border px-2 py-0.5 rounded-md max-w-[230px] truncate"
+                            className="inline-flex items-center gap-1 text-[10px] font-semibold border px-1.5 py-0.5 rounded max-w-full truncate"
                             style={{ 
                               backgroundColor: isMe ? "rgba(253, 175, 23, 0.15)" : "#fff9ec", 
                               borderColor: "#fdaf17",
                               color: isMe ? "#fdaf17" : "#b37400"
                             }}
+                            title={`Standby: ${currentActiveCell.location}`}
                           >
-                            <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                            <span>Standby: <strong className="font-bold">{currentActiveCell.location}</strong></span>
+                            <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                            <span className="truncate">{currentActiveCell.location}</span>
                           </div>
                         )
                       ) : (
                         <div 
-                          className="inline-flex items-center gap-1 text-[11px] font-medium border px-2 py-0.5 rounded-md"
+                          className="inline-flex items-center gap-1 text-[10px] font-medium border px-1.5 py-0.5 rounded"
                           style={{ 
                             backgroundColor: isMe ? "rgba(255, 255, 255, 0.1)" : "#ebeae1", 
                             borderColor: isMe ? "rgba(255, 255, 255, 0.2)" : "#cfccbc",
                             color: isMe ? "#c7c4ae" : "#617578"
                           }}
                         >
-                          <span className="inline-block w-1.5 h-1.5 rounded-full" style={{ backgroundColor: isMe ? "#c7c4ae" : "#617578" }} />
+                          <span className="inline-block w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: isMe ? "#c7c4ae" : "#617578" }} />
                           <span>Free</span>
                         </div>
                       )}
@@ -253,10 +255,9 @@ export default function ScheduleMatrix({
                   
                   const base = "border-b border-r px-3 py-2 text-xs align-top min-w-[150px] h-16 transition-colors";
                   
-                  // FIX UTAMA: Kustomisasi warna background jika sel bertipe izin/absen
                   let gridBg = isMe ? "#03323f" : "#f7f5e1";
                   if (cell?.is_leave) {
-                    gridBg = highlighted ? "#fee2e2" : "#fecaca"; // Merah pastel Tailwind kontras
+                    gridBg = highlighted ? "#fee2e2" : "#fecaca"; 
                   } else if (highlighted) {
                     gridBg = isMe ? "#054354" : "#f2f0d5"; 
                   }
@@ -278,7 +279,7 @@ export default function ScheduleMatrix({
                             timeSlot: slot,
                             locationId: cell.location_id,
                             jobDescription: cell.job_description,
-                            isLeave: cell.is_leave, // 🔴 Teruskan flag isLeave ke modal form
+                            isLeave: cell.is_leave, 
                           })
                         }
                       >
