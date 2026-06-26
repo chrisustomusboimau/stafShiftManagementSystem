@@ -11,8 +11,8 @@ class Settings(BaseSettings):
     secret_key: str = "dev-secret-change-me"
     access_token_expire_minutes: int = 720
     
-    # FIX UTAMA: Gunakan PostgreSQL Supabase sebagai default fallback (atau kosongkan agar wajib dari .env)
-    database_url: str = "postgresql://postgres:password_kamu@db.xyz.supabase.co:5432/postgres"
+    # FIX VERCEL: Dikosongkan agar sistem wajib membaca string asli dari env Vercel / file .env lokal
+    database_url: str = ""
     
     admin_user: str = "admin"
     admin_pass: str = "admin123"
@@ -27,18 +27,18 @@ def get_settings() -> Settings:
 
 settings = get_settings()
 
-# FIX UTAMA: Hapus 'check_same_thread' karena PostgreSQL mendukung multi-threading secara native
+# PostgreSQL mendukung operasi multi-threading secara native (tidak memerlukan check_same_thread)
 connect_args = {}
 
-# Inisialisasi engine database menggunakan PostgreSQL Supabase
+# Inisialisasi engine database menggunakan PostgreSQL Supabase / Pooler URI
 engine = create_engine(settings.database_url, echo=False, connect_args=connect_args)
 
 
 def init_db() -> None:
-    # Import models so SQLModel.metadata is populated.
-    from . import models  # noqa: F401
+    # FIX VERCEL: Menggunakan absolute import agar aman dari relative import error di runtime cloud
+    from app import models  # noqa: F401
 
-    # Ini akan membuat semua tabel (User, Staff, Location, Assignment) langsung di database Supabase kamu
+    # Membuat seluruh skema tabel langsung di kluster database Supabase
     SQLModel.metadata.create_all(engine)
 
 

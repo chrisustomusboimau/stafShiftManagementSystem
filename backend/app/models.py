@@ -17,7 +17,7 @@ class Staff(SQLModel, table=True):
     division: Optional[str] = None
     contact: Optional[str] = None
     
-    # Kunci konsistensi ketiga field ini agar dikenali oleh sistem DB & Router Staff
+    # Sinkronisasi field autentikasi hibrida lintas tabel untuk Dashboard Staff
     username: Optional[str] = Field(default=None, index=True, unique=True)
     hashed_password: Optional[str] = Field(default=None)
     role: Optional[str] = Field(default="staff")  # "admin" | "staff"
@@ -30,20 +30,22 @@ class Location(SQLModel, table=True):
 
 
 class Assignment(SQLModel, table=True):
-    # Staf tidak boleh bentrok di slot jam yang sama PADA TANGGAL YANG SAMA.
-    __table_args__ = (UniqueConstraint("staff_id", "time_slot", "date", name="uq_staff_slot_date"),)
+    # Memastikan keunikan jadwal agar terhindar dari tabrakan slot harian di Supabase
+    __table_args__ = (
+        UniqueConstraint("staff_id", "time_slot", "date", name="uq_staff_slot_date"),
+    )
 
     id: Optional[int] = Field(default=None, primary_key=True)
     
-    # FIX UTAMA: Ditambahkan referensi kaskade agar penghapusan data staff tidak memicu kegagalan relasi foreign key
+    # Aman dari error penanganan siklus penghapusan berantai via pooler
     staff_id: int = Field(foreign_key="staff.id", index=True, ondelete="CASCADE")
     
-    # Lokasi bersifat opsional (nullable) untuk mengakomodasi status izin/sakit tanpa lokasi fisik
+    # Bersifat opsional (nullable) untuk mendukung status penugasan berbasis izin/absen harian
     location_id: Optional[int] = Field(default=None, foreign_key="location.id", nullable=True)
     
     time_slot: str = Field(index=True)  # e.g. "00:00-00:30"
     date: str = Field(index=True)       # e.g. "2026-06-26"
     job_description: str = ""
     
-    # Status penanda apakah staf sedang mengambil cuti atau izin absen
+    # Flag khusus penanda grid visual untuk sistem absensi di frontend
     is_leave: bool = Field(default=False)

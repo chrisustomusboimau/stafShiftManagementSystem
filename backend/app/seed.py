@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from sqlmodel import Session, select
 
-from .database import engine, settings
-from .models import Location, User
-from .security import hash_password
+# FIX VERCEL: Mengubah ke absolute imports agar terhindar dari relative import error di serverless environment
+from app.database import engine, settings
+from app.models import Location, User
+from app.security import hash_password
 
 
 def run_seed() -> None:
@@ -20,5 +21,6 @@ def run_seed() -> None:
                 )
             )
 
+        # 2. Opsional: Tempat menambahkan seeding boilerplate data lain ke Supabase jika dibutuhkan
 
         session.commit()

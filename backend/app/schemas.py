@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from typing import Optional
-
 from pydantic import BaseModel, field_validator
 
 # 48 half-hour slots covering 00:00–24:00.
@@ -80,14 +79,14 @@ class LocationOut(LocationBase):
 class AssignmentBase(BaseModel):
     staff_id: int
     
-    # FIX UTAMA: Ubah menjadi Optional[int] agar bisa bernilai None saat staf izin/cuti
+    # Kelonggaran tipe data agar bernilai None (NULL) saat staf izin/cuti harian
     location_id: Optional[int] = None
     
     time_slot: str
-    date: str # format: "YYYY-MM-DD"
+    date: str  # format: "YYYY-MM-DD"
     job_description: str = ""
     
-    # FIX UTAMA: Tambahkan field status izin/absen harian
+    # Properti penanda status absen harian
     is_leave: bool = False
 
     @field_validator("time_slot")
@@ -109,7 +108,7 @@ class AssignmentUpdate(BaseModel):
     date: Optional[str] = None
     job_description: Optional[str] = None
     
-    # FIX UTAMA: Tambahkan is_leave opsional pada pembaruan data
+    # Menambahkan opsi pembaruan status izin lewat payload PUT
     is_leave: Optional[bool] = None
 
     @field_validator("time_slot")
@@ -122,7 +121,7 @@ class AssignmentUpdate(BaseModel):
         return v
 
 
-# FIX UTAMA: Override ulang AssignmentOut agar mewarisi kelonggaran bertipe data optional
+# Sinkronisasi output objek penugasan tunggal untuk response API
 class AssignmentOut(BaseModel):
     id: int
     staff_id: int
@@ -148,12 +147,12 @@ class MatrixStaff(BaseModel):
 class MatrixCell(BaseModel):
     assignment_id: int
     
-    # Catatan: Teks lokasi bisa kita isi otomatis dengan "IZIN / ABSEN" dari router jika is_leave True
+    # Diisi teks lokasi fisik ruangan atau string makro "IZIN / ABSEN" dari router
     location: str
     
-    location_id: Optional[int] = None # 🔴 Ubah jadi Optional[int]
+    location_id: Optional[int] = None 
     job_description: str
-    is_leave: bool = False # 🔴 Tambahkan status penanda ini untuk dibaca grid frontend
+    is_leave: bool = False  # Diteruskan ke grid frontend untuk penentuan warna CSS khusus
 
 
 class MatrixResponse(BaseModel):
