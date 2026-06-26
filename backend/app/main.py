@@ -6,9 +6,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 # FIX VERCEL: Mengubah ke absolute imports agar aman dieksekusi di lingkungan serverless
-from app.database import init_db
-from app.routers import assignments, auth, locations, staff
-from app.seed import run_seed
+from database import init_db
+from routers import assignments, auth, locations, staff
+from seed import run_seed
 
 
 @asynccontextmanager

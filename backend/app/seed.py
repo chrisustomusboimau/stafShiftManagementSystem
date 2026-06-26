@@ -3,9 +3,9 @@ from __future__ import annotations
 from sqlmodel import Session, select
 
 # FIX VERCEL: Mengubah ke absolute imports agar terhindar dari relative import error di serverless environment
-from app.database import engine, settings
-from app.models import Location, User
-from app.security import hash_password
+from database import engine, settings
+from models import Location, User
+from security import hash_password
 
 
 def run_seed() -> None:

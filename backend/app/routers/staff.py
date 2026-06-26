@@ -5,10 +5,10 @@ from pydantic import BaseModel, Field
 from sqlmodel import Session, select
 
 # FIX VERCEL: Mengubah ke absolute imports agar modul router aman dieksekusi di lingkungan serverless
-from app.security import get_current_user, require_admin, pwd_context
-from app.database import get_session
-from app.models import Staff
-from app.schemas import StaffCreate, StaffOut, StaffUpdate
+from security import get_current_user, require_admin, pwd_context
+from database import get_session
+from models import Staff
+from schemas import StaffCreate, StaffOut, StaffUpdate
 
 router = APIRouter(prefix="/staff", tags=["staff"])
 

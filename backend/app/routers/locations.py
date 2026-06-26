@@ -4,10 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 
 # FIX VERCEL: Mengubah ke absolute imports agar modul router aman dieksekusi di lingkungan serverless
-from app.database import get_session
-from app.models import Location
-from app.schemas import LocationCreate, LocationOut, LocationUpdate
-from app.security import get_current_user, require_admin
+from database import get_session
+from models import Location
+from schemas import LocationCreate, LocationOut, LocationUpdate
+from security import get_current_user, require_admin
 
 router = APIRouter(prefix="/locations", tags=["locations"])
 

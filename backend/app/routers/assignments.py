@@ -6,9 +6,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session, select
 
 # FIX VERCEL: Mengubah ke absolute imports agar aman dieksekusi di lingkungan serverless Vercel
-from app.database import get_session
-from app.models import Assignment, Location, Staff
-from app.schemas import (
+from database import get_session
+from models import Assignment, Location, Staff
+from schemas import (
     TIME_SLOTS,
     AssignmentCreate,
     AssignmentOut,
@@ -17,7 +17,7 @@ from app.schemas import (
     MatrixResponse,
     MatrixStaff,
 )
-from app.security import get_current_user, require_admin
+from security import get_current_user, require_admin
 
 router = APIRouter(prefix="/assignments", tags=["assignments"])
 

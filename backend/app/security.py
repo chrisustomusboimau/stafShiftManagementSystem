@@ -10,8 +10,8 @@ from passlib.context import CryptContext
 from sqlmodel import Session, select
 
 # FIX VERCEL: Mengubah ke absolute imports agar modul dapat dilacak dengan tepat oleh serverless runtime
-from app.database import get_session, settings
-from app.models import User, Staff
+from database import get_session, settings
+from models import User, Staff
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")

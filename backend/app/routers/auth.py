@@ -5,10 +5,10 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session, select
 
 # FIX VERCEL: Mengubah ke absolute imports agar aman dieksekusi di lingkungan serverless Vercel
-from app.database import get_session
-from app.schemas import Token, UserOut
-from app.security import authenticate_user, create_access_token, get_current_user, pwd_context
-from app.models import User, Staff
+from database import get_session
+from schemas import Token, UserOut
+from security import authenticate_user, create_access_token, get_current_user, pwd_context
+from models import User, Staff
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
