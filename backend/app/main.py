@@ -57,7 +57,19 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="Event Staff Tracker", lifespan=lifespan)
+# =========================================================================
+# FIX ROUTING PROXY VERCEL MENGGUNAKAN ROOT_PATH
+# Deteksi secara otomatis apakah aplikasi berjalan di dalam serverless cloud Vercel
+# =========================================================================
+is_vercel = os.environ.get("VERCEL") == "1"
+
+app = FastAPI(
+    title="Event Staff Tracker", 
+    lifespan=lifespan,
+    # Jika di Vercel, strip /_/backend dari incoming request secara native di balik layar
+    root_path="/_/backend" if is_vercel else ""
+)
+# =========================================================================
 
 # Pengaturan CORS Middleware untuk komunikasi aman dengan frontend React/Vite
 app.add_middleware(
@@ -65,7 +77,6 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173", 
         "http://127.0.0.1:5173",
-        # Izinkan domain produksi Vercel-mu melakukan request API lintas asal
         "https://staf-shift-management-system-o93b.vercel.app"
     ],
     allow_credentials=True,
@@ -73,7 +84,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Registrasi Router API Endpoints (Path aslinya tetap bersih: /auth/login, /staff, dll.)
+# Registrasi Router API Endpoints (Rute internal Anda tetap bersih dan natural)
 app.include_router(auth.router)
 app.include_router(staff.router)
 app.include_router(locations.router)
