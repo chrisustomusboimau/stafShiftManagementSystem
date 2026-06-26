@@ -26,7 +26,7 @@ export default function Login() {
 
   return (
     <div 
-      className="min-h-screen flex items-center justify-center p-4"
+      className="min-h-screen flex flex-col items-center justify-center p-4 space-y-3"
       style={{ backgroundColor: "#f7f5e1" }} // Latar belakang krem terang halaman
     >
       <form 
@@ -118,6 +118,11 @@ export default function Login() {
           {loading ? "Signing in…" : "Sign in"}
         </button>
       </form>
+
+      {/* Watermark Branding di luar kotak login */}
+      <div className="text-xs font-medium tracking-wide select-none" style={{ color: "#617578" }}>
+        by: <span className="font-semibold" style={{ color: "#03323f" }}>chrisustomus boimau</span>
+      </div>
     </div>
   );
 }
