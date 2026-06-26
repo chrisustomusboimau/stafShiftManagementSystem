@@ -4,15 +4,16 @@ import os
 import sys
 
 # =========================================================================
-# FIX DEFINITIF STRUKTUR FOLDER MONOREPO VERCEL
-# Memaksa runtime serverless mengenali root folder proyek agar 'from app.xxxx' valid
+# FIX DEFINITIF STRUKTUR FOLDER MONOREPO VERCEL & SUBFOLDER ROUTERS
+# Memaksa runtime serverless mengenali semua level direktori kerja
 # =========================================================================
 current_dir = os.path.dirname(os.path.abspath(__file__))  # Menunjuk ke backend/app
 backend_root = os.path.abspath(os.path.join(current_dir, ".."))  # Menunjuk ke backend
 parent_root = os.path.abspath(os.path.join(backend_root, ".."))  # Menunjuk ke root terluar (place-shift)
 
-# Daftarkan kedua kemungkinan root pencarian modul ke sys.path
-for path in [parent_root, backend_root]:
+# Memasukkan current_dir menjamin statement 'from database import ...' 
+# di dalam file sub-router tetap valid tanpa perlu merombak seluruh kode import.
+for path in [current_dir, backend_root, parent_root]:
     if path not in sys.path:
         sys.path.insert(0, path)
 # =========================================================================
@@ -21,7 +22,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# Sekarang absolute imports ini aman digunakan di lokal maupun di lingkungan serverless Vercel
+# Absolute imports utama untuk main.py tetap aman digunakan
 from app.database import init_db
 from app.routers import assignments, auth, locations, staff
 from app.seed import run_seed
