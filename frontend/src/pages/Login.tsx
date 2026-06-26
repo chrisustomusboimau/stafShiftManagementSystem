@@ -5,8 +5,8 @@ import { useAuth } from "../auth/AuthContext";
 export default function Login() {
   const { login } = useAuth();
   const nav = useNavigate();
-  const [u, setU] = useState(null);
-  const [p, setP] = useState(null);
+  const [u, setU] = useState("");
+  const [p, setP] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -33,6 +33,7 @@ export default function Login() {
         onSubmit={onSubmit} 
         className="bg-white rounded-2xl p-8 w-full max-w-sm space-y-5 border shadow-md"
         style={{ borderColor: "#d9d6be" }}
+        autoComplete="off" // FIX BROWSER AUTOFILL: Mematikan autofill bawaan pada level form
       >
         <div>
           <h1 className="text-2xl font-bold" style={{ color: "#03323f" }}>
@@ -49,11 +50,13 @@ export default function Login() {
             Username
           </label>
           <input
+            type="text"
             className="w-full border rounded-lg px-3 py-2 text-sm bg-white focus:outline-none transition-shadow"
             style={{ borderColor: "#cfccbc", color: "#03323f" }}
             value={u}
             onChange={(e) => setU(e.target.value)}
             autoFocus
+            autoComplete="one-time-code" // Trik pelindung tambahan untuk memblokir deteksi otomatis pengelola kata sandi
             onFocus={(e) => {
               e.target.style.boxShadow = "0 0 0 2px rgba(3, 50, 63, 0.2)";
               e.target.style.borderColor = "#03323f";
@@ -76,6 +79,7 @@ export default function Login() {
             style={{ borderColor: "#cfccbc", color: "#03323f" }}
             value={p}
             onChange={(e) => setP(e.target.value)}
+            autoComplete="new-password" // FIX BROWSER AUTOFILL: Memaksa browser menganggap ini kolom baru dan membiarkannya kosong
             onFocus={(e) => {
               e.target.style.boxShadow = "0 0 0 2px rgba(3, 50, 63, 0.2)";
               e.target.style.borderColor = "#03323f";
