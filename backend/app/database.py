@@ -1,24 +1,26 @@
 from __future__ import annotations
 
 import os
+import sys
+import logging
 from functools import lru_cache
 from typing import Iterator
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlmodel import Session, SQLModel, create_engine
 
+# Konfigurasi logging agar tercatat jelas di dashboard Vercel
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 class Settings(BaseSettings):
     secret_key: str = "dev-secret-change-me"
     access_token_expire_minutes: int = 720
-    
-    # Menggunakan None agar Pydantic wajib mencari nilai dari Environment Variables Vercel
     database_url: str | None = None
-    
     admin_user: str = "admin"
     admin_pass: str = "admin123"
 
-    # case_sensitive=False memastikan variabel DATABASE_URL (kapital) di Vercel otomatis mengisi database_url
     model_config = SettingsConfigDict(env_file=".env", extra="ignore", case_sensitive=False)
 
 
@@ -27,31 +29,57 @@ def get_settings() -> Settings:
     return Settings()
 
 
-settings = get_settings()
+# =========================================================================
+# ERROR HANDLING: INISIALISASI DATABASE ENGINE
+# =========================================================================
+try:
+    settings = get_settings()
+    db_url = settings.database_url or os.environ.get("DATABASE_URL") or os.environ.get("SUPABASE_DB_URL")
+    
+    logger.info(f"LOG-DATABASE: Memeriksa ketersediaan string koneksi... {'DITEMUKAN' if db_url else 'KOSONG/NONE'}")
 
-# FIX AMAN VERCEL: Mengambil URL langsung dari os.environ sebagai fallback utama
-db_url = settings.database_url or os.environ.get("DATABASE_URL") or os.environ.get("SUPABASE_DB_URL")
+    if not db_url:
+        logger.warning("LOG-DATABASE: DATABASE_URL tidak ditemukan di env. Menggunakan fallback sqlite memori.")
+        db_url = "sqlite:///:memory:"
 
-if not db_url:
-    # Menggunakan sqlite memori sementara hanya agar fase inisialisasi awal tidak crash jika env belum terbaca
-    db_url = "sqlite:///:memory:"
+    if db_url.startswith("postgres://"):
+        logger.info("LOG-DATABASE: Mengubah skema postgres:// menjadi postgresql:// untuk kompatibilitas SQLAlchemy.")
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
 
-# Jika menggunakan database Supabase PostgreSQL, paksa perbaikan skema URI jika masih 'postgres://'
-if db_url.startswith("postgres://"):
-    db_url = db_url.replace("postgres://", "postgresql://", 1)
+    connect_args = {}
+    # Jika terhubung ke Supabase/Cloud, pastikan SSL aktif dan cegah argumen SQLite bocor
+    if "sqlite" not in db_url:
+        connect_args = {"sslmode": "require"}
+    else:
+        connect_args = {"check_same_thread": False}
 
-connect_args = {}
-engine = create_engine(db_url, echo=False, connect_args=connect_args)
+    logger.info(f"LOG-DATABASE: Mencoba membuat engine untuk dialek: {db_url.split('://')[0]}")
+    engine = create_engine(db_url, echo=False, connect_args=connect_args)
+
+except Exception as e:
+    logger.error(f"LOG-DATABASE [FATAL ERROR] Gagal menginisialisasi create_engine: {str(e)}", exc_info=True)
+    # Terapkan emergency fallback agar aplikasi tidak crash total saat booting awal imports
+    engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False})
+# =========================================================================
 
 
 def init_db() -> None:
-    # Menyesuaikan kembali ke absolute import yang selaras dengan trik sys.path kita sebelumnya
-    from app import models  # noqa: F401
-
-    # Membuat seluruh skema tabel langsung di kluster database Supabase
-    SQLModel.metadata.create_all(engine)
+    try:
+        logger.info("LOG-DATABASE: Memuat modul models...")
+        from app import models  # noqa: F401
+        
+        logger.info("LOG-DATABASE: Menjalankan SQLModel.metadata.create_all...")
+        SQLModel.metadata.create_all(engine)
+        logger.info("LOG-DATABASE: Pembuatan skema tabel sukses!")
+    except Exception as e:
+        logger.error(f"LOG-DATABASE [FATAL ERROR] Gagal mengeksekusi metadata.create_all(): {str(e)}", exc_info=True)
+        raise e
 
 
 def get_session() -> Iterator[Session]:
-    with Session(engine) as session:
-        yield session
+    try:
+        with Session(engine) as session:
+            yield session
+    except Exception as e:
+        logger.error(f"LOG-DATABASE [ERROR] Gagal membuka/menutup Session: {str(e)}", exc_info=True)
+        raise e

@@ -2,6 +2,13 @@ from __future__ import annotations
 
 import os
 import sys
+import logging
+
+# =========================================================================
+# KONFIGURASI LOGGING UNTUK MELACAK EROR DI VERCEL
+# =========================================================================
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # =========================================================================
 # FIX DEFINITIF STRUKTUR FOLDER MONOREPO VERCEL & SUBFOLDER ROUTERS
@@ -30,9 +37,24 @@ from app.seed import run_seed
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Dipanggil sesaat sebelum server siap menerima request
-    init_db()    # Memastikan tabel-tabel terbuat di kluster Supabase
-    run_seed()   # Menyuntikkan akun admin utama ke Supabase jika belum ada
+    # =========================================================================
+    # ERROR HANDLING LIFESPAN: Melacak crash saat startup database / seeding
+    # =========================================================================
+    try:
+        logger.info("LOG-LIFESPAN: Memulai inisialisasi database (init_db)...")
+        init_db()    
+        logger.info("LOG-LIFESPAN: Inisialisasi database sukses!")
+    except Exception as e:
+        logger.error(f"LOG-LIFESPAN [FATAL ERROR] pada init_db(): {str(e)}", exc_info=True)
+        # Kita biarkan catch block menahan crash keras sesaat agar log sempat terkirim ke sistem Vercel
+    
+    try:
+        logger.info("LOG-LIFESPAN: Memulai proses seeding admin (run_seed)...")
+        run_seed()   
+        logger.info("LOG-LIFESPAN: Seeding sukses atau dilewati!")
+    except Exception as e:
+        logger.error(f"LOG-LIFESPAN [FATAL ERROR] pada run_seed(): {str(e)}", exc_info=True)
+    # =========================================================================
     yield
 
 
