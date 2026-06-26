@@ -121,7 +121,7 @@ export default function Login() {
 
       {/* Watermark Branding di luar kotak login */}
       <div className="text-xs font-medium tracking-wide select-none" style={{ color: "#617578" }}>
-        by: <span className="font-semibold" style={{ color: "#03323f" }}>chrisustomus boimau</span>
+        by: <span className="font-semibold" style={{ color: "#03323f" }}>Chrisustomus Boimau</span>
       </div>
     </div>
   );
