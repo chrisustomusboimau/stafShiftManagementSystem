@@ -5,8 +5,8 @@ import { useAuth } from "../auth/AuthContext";
 export default function Login() {
   const { login } = useAuth();
   const nav = useNavigate();
-  const [u, setU] = useState("");
-  const [p, setP] = useState("");
+  const [u, setU] = useState(null);
+  const [p, setP] = useState(null);
   const [err, setErr] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
