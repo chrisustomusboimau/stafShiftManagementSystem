@@ -9,7 +9,10 @@
     {
       "src": "backend/app/main.py",
       "use": "@vercel/python",
-      "config": { "maxDuration": 25 }
+      "config": { 
+        "maxDuration": 60,
+        "includeFiles": "backend/**"
+      }
     }
   ],
   "routes": [
